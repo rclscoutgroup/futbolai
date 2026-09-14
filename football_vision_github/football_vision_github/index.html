@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Football Vision — Regional Analytics</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <div class="brand">FOOTBALL VISION</div>
+      <div class="subtitle">Computer vision para fútbol regional · semiprofesional · amateur</div>
+    </div>
+    <div class="status"><span id="statusDot"></span><span id="statusText">Listo</span></div>
+  </header>
+
+  <main class="shell">
+    <section class="hero card">
+      <div class="hero-copy">
+        <span class="eyebrow">VIDEO → TRACKING → EVENTOS → CSV</span>
+        <h1>Analiza un partido directamente desde el navegador.</h1>
+        <p>Sube el vídeo, pulsa generar y obtén tracking, acciones, coordenadas, mapas y estadísticas. El procesamiento se ejecuta en el navegador; no necesitas Python ni un backend.</p>
+      </div>
+
+      <div class="upload" id="dropzone">
+        <input id="videoInput" type="file" accept="video/*" hidden />
+        <div class="upload-icon">↑</div>
+        <div class="upload-title">Arrastra tu vídeo aquí</div>
+        <div class="upload-sub">o</div>
+        <button class="btn secondary" id="chooseBtn">Seleccionar vídeo</button>
+        <div class="file-name" id="fileName">Ningún vídeo seleccionado</div>
+      </div>
+
+      <div class="controls">
+        <label>FPS análisis
+          <select id="sampleFps">
+            <option value="1">1 fps · rápido</option>
+            <option value="2" selected>2 fps · recomendado</option>
+            <option value="3">3 fps · más detalle</option>
+            <option value="5">5 fps · máximo</option>
+          </select>
+        </label>
+        <label>Resolución detector
+          <select id="imgSize">
+            <option value="416">416 · rápido</option>
+            <option value="640" selected>640 · recomendado</option>
+            <option value="832">832 · más preciso</option>
+          </select>
+        </label>
+        <label>Confianza mínima
+          <input id="conf" type="range" min="0.15" max="0.75" step="0.05" value="0.30" />
+          <span id="confValue">0.30</span>
+        </label>
+      </div>
+
+      <button class="btn primary big" id="runBtn" disabled>Generar análisis</button>
+
+      <div class="progress-wrap hidden" id="progressWrap">
+        <div class="progress-line"><span id="progressLabel">Preparando…</span><span id="progressPct">0%</span></div>
+        <div class="progress"><div id="progressBar"></div></div>
+      </div>
+      <div class="warning" id="warningBox"></div>
+    </section>
+
+    <section class="grid two hidden" id="previewSection">
+      <div class="card video-card">
+        <div class="card-head"><h2>Vídeo</h2><span id="videoMeta"></span></div>
+        <video id="video" controls playsinline></video>
+      </div>
+      <div class="card preview-card">
+        <div class="card-head"><h2>Frame procesado</h2><span id="frameMeta"></span></div>
+        <canvas id="annotatedCanvas"></canvas>
+      </div>
+    </section>
+
+    <section class="dashboard hidden" id="dashboard">
+      <div class="section-title">
+        <div><span class="eyebrow">RESULTADOS</span><h2>Match report automático</h2></div>
+        <div class="actions"><button class="btn secondary" id="downloadCsv">Descargar CSV acciones</button><button class="btn secondary" id="downloadTracks">Descargar CSV tracking</button><button class="btn secondary" id="downloadJson">Descargar JSON</button></div>
+      </div>
+
+      <div class="stats-grid" id="summaryCards"></div>
+
+      <div class="grid two">
+        <div class="card chart-card"><div class="card-head"><h3>Mapa de calor</h3><span>jugadores</span></div><canvas id="heatmapCanvas"></canvas></div>
+        <div class="card chart-card"><div class="card-head"><h3>Mapa de pases</h3><span>individual + equipo</span></div><canvas id="passMapCanvas"></canvas></div>
+        <div class="card chart-card"><div class="card-head"><h3>Mapa de tiros</h3><span>xG heurístico</span></div><canvas id="shotMapCanvas"></canvas></div>
+        <div class="card chart-card"><div class="card-head"><h3>Voronoi</h3><span>fotograma final analizado</span></div><canvas id="voronoiCanvas"></canvas></div>
+      </div>
+
+      <div class="grid two">
+        <div class="card"><div class="card-head"><h3>Acciones detectadas</h3><span id="actionCount"></span></div><div class="table-wrap"><table id="actionsTable"><thead></thead><tbody></tbody></table></div></div>
+        <div class="card"><div class="card-head"><h3>Jugadores</h3><span>tracking + métricas</span></div><div class="table-wrap"><table id="playersTable"><thead></thead><tbody></tbody></table></div></div>
+      </div>
+
+      <div class="card"><div class="card-head"><h3>Esquema CSV</h3><span>una fila = una acción</span></div><div class="schema" id="schema"></div></div>
+    </section>
+
+    <footer>
+      <span>Football Vision</span><span>•</span><span>Browser-first prototype</span><span>•</span><span>Todos los eventos incluyen coordenadas, jugador y confianza.</span>
+    </footer>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.1/dist/ort.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
